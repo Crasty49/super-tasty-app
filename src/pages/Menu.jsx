@@ -25,14 +25,17 @@ export default function Menu({ addToCart }) {
 
         return (
 
-          <motion.div
-            key={item.id}
-            whileHover={{ scale: 1.03 }}
-            className="
-              backdrop-blur-lg bg-white/5 border border-white/10
-              p-5 rounded-xl shadow-lg
-            "
-          >
+            <motion.div
+              key={item.id}
+              whileHover={{ scale: 1.03 }}
+              className="
+                backdrop-blur-lg backdrop-blur-fix
+                bg-black/40
+                border border-white/10
+                p-5 rounded-xl shadow-lg
+              "
+            >
+
 
             <h3 className="font-semibold text-lg text-white">
               {item.name}
