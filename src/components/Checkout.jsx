@@ -34,7 +34,12 @@ export default function Checkout({ cart, onClose, onClearCart, onSuccess, onTick
 
     cart.forEach(item => {
 
-      message += `🍗 ${item.name}\n`;
+      const qtyText = item.quantity > 1
+        ? ` x${item.quantity}`
+        : "";
+
+      message += `🍗 ${item.name}${qtyText}\n`;
+
 
       if (item.mode) {
         message += `Modo: ${item.mode === "banados" ? "Bañados" : "Naturales"}\n`;
