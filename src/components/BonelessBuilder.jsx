@@ -4,7 +4,7 @@ import { sauces } from "../data/menu";
 
 const EXTRA_PRICE = 15;
 
-export default function BonelessBuilder({ item, onConfirm }) {
+export default function BonelessBuilder({ item, onConfirm, onClose }) {
 
   const [mode, setMode] = useState("banados");
   const [included, setIncluded] = useState([]);
@@ -45,6 +45,7 @@ export default function BonelessBuilder({ item, onConfirm }) {
       initial={{ scale: 0.85, opacity: 0 }}
       animate={{ scale: 1, opacity: 1 }}
       className="
+        relative
         backdrop-blur-xl
         bg-black/40
         border border-white/10
@@ -54,6 +55,22 @@ export default function BonelessBuilder({ item, onConfirm }) {
         text-white
       "
     >
+
+      {/* ✕ botón cerrar */}
+
+      <button
+        onClick={onClose}
+        className="
+          absolute top-3 right-3
+          w-8 h-8 rounded-full
+          bg-white/10 hover:bg-red-500
+          flex items-center justify-center
+          text-white font-bold
+          transition
+        "
+      >
+        ✕
+      </button>
 
       {/* título */}
 
@@ -202,6 +219,20 @@ export default function BonelessBuilder({ item, onConfirm }) {
         "
       >
         Confirmar pedido
+      </button>
+
+      {/* cancelar */}
+
+      <button
+        onClick={onClose}
+        className="
+          mt-3 w-full
+          bg-white/10 hover:bg-white/20
+          py-2 rounded-lg
+          text-gray-300
+        "
+      >
+        Cancelar
       </button>
 
     </motion.div>
