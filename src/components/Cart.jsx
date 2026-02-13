@@ -78,10 +78,14 @@ export default function Cart({ cart, onCheckout, onRemove }) {
               <div>
 
                 <p className="font-semibold text-white">
-                  {item.quantity > 1
-                    ? `${item.name} x${item.quantity}`
-                    : item.name}
+                  {item.name}
                 </p>
+
+                {item.quantity > 1 && (
+                  <p className="text-sm text-gray-400">
+                    Cantidad: {item.quantity}
+                  </p>
+                )}
 
                 {item.mode && (
                   <p className="text-sm text-gray-400">
