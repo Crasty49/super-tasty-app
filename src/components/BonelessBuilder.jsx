@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { sauces } from "../data/menu";
 
@@ -17,9 +17,18 @@ export default function BonelessBuilder({
 
   if (!item) return null;
 
+  // 👉 bloquear incluidas si es naturales
+
+  useEffect(() => {
+    if (mode === "naturales") {
+      setIncluded([]);
+    }
+  }, [mode]);
+
   // ===== INCLUIDAS =====
 
   const addIncluded = sauce => {
+    if (mode === "naturales") return;
     if (included.length >= 2) return;
     setIncluded([...included, sauce]);
   };
@@ -60,14 +69,10 @@ export default function BonelessBuilder({
       initial={{ scale: 0.85, opacity: 0 }}
       animate={{ scale: 1, opacity: 1 }}
       className="
-        relative
-        backdrop-blur-xl
-        bg-black/40
-        border border-white/10
-        p-6 rounded-2xl
-        shadow-2xl
-        w-full max-w-md
-        text-white
+        relative backdrop-blur-xl
+        bg-black/40 border border-white/10
+        p-6 rounded-2xl shadow-2xl
+        w-full max-w-md text-white
       "
     >
 
@@ -88,7 +93,7 @@ export default function BonelessBuilder({
         Configurar Boneless
       </h2>
 
-      {/* modo */}
+      {/* MODOS */}
 
       <div className="mb-5 space-y-2">
 
@@ -103,20 +108,35 @@ export default function BonelessBuilder({
         <label>
           <input
             type="radio"
+            checked={mode === "naturalesSalsa"}
+            onChange={() => setMode("naturalesSalsa")}
+          /> Naturales + salsa aparte
+        </label>
+
+        <label>
+          <input
+            type="radio"
             checked={mode === "naturales"}
             onChange={() => setMode("naturales")}
-          /> Naturales + botecitos
+          /> Naturales
         </label>
 
       </div>
 
-      {/* incluidas */}
+      {/* INCLUIDAS */}
 
       <h3 className="mb-2 text-orange-300">
-        Incluidas (máx 2)
+        Salsas incluidas (máx 2)
       </h3>
 
-      <div className="flex flex-wrap gap-2 mb-3">
+      <div
+        className={`
+          flex flex-wrap gap-2 mb-3
+          ${mode === "naturales"
+            ? "opacity-40 pointer-events-none"
+            : ""}
+        `}
+      >
 
         {sauces.map(s => (
 
@@ -146,7 +166,7 @@ export default function BonelessBuilder({
 
       ))}
 
-      {/* extras */}
+      {/* EXTRAS */}
 
       <h3 className="mt-5 mb-2 text-red-400">
         Extras
@@ -192,13 +212,13 @@ export default function BonelessBuilder({
 
       ))}
 
-      {/* total */}
+      {/* TOTAL */}
 
       <div className="mt-5 text-lg font-bold text-orange-400">
         Total: ${total}
       </div>
 
-      {/* confirmar */}
+      {/* CONFIRMAR */}
 
       <button
         onClick={() =>
