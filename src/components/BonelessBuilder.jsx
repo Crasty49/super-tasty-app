@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { sauces } from "../data/menu";
+import useBackClose from "../hooks/useBackClose";
+
 
 const EXTRA_SAUCE_PRICE = 20;
 const DRESSING_PRICE = 25;
@@ -14,6 +16,8 @@ export default function BonelessBuilder({
   const [mode, setMode] = useState("banados");
   const [included, setIncluded] = useState([]);
   const [extras, setExtras] = useState([]);
+
+  useBackClose(true, onClose);
 
   if (!item) return null;
 

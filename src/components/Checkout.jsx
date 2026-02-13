@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import TransferModal from "./TransferModal";
+import useBackClose from "../hooks/useBackClose";
+
 
 
 const BUSINESS_PHONE = "528361227012";
@@ -20,6 +22,8 @@ export default function Checkout({
   const [payment, setPayment] = useState("efectivo");
   const [cash, setCash] = useState("");
   const [transferOpen, setTransferOpen] = useState(false);
+
+  useBackClose(true, onClose);
 
 
   const total = cart.reduce(
