@@ -95,33 +95,37 @@ export default function BonelessBuilder({
 
       {/* MODOS */}
 
-      <div className="mb-5 space-y-2">
+      <div className="mb-5 flex flex-col gap-2">
 
-        <label>
+        <label className="flex items-center gap-2 cursor-pointer">
           <input
             type="radio"
             checked={mode === "banados"}
             onChange={() => setMode("banados")}
-          /> Bañados
+          />
+          Bañados
         </label>
 
-        <label>
+        <label className="flex items-center gap-2 cursor-pointer">
           <input
             type="radio"
             checked={mode === "naturalesSalsa"}
             onChange={() => setMode("naturalesSalsa")}
-          /> Naturales + salsa aparte
+          />
+          Naturales + salsa aparte
         </label>
 
-        <label>
+        <label className="flex items-center gap-2 cursor-pointer">
           <input
             type="radio"
             checked={mode === "naturales"}
             onChange={() => setMode("naturales")}
-          /> Naturales
+          />
+          Naturales
         </label>
 
       </div>
+
 
       {/* INCLUIDAS */}
 
