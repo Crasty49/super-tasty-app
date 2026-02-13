@@ -1,5 +1,3 @@
-// Salsas disponibles
-
 export const sauces = [
   "BBQ",
   "BBQ Hot",
@@ -7,58 +5,53 @@ export const sauces = [
   "Mango habanero"
 ];
 
-// Menú
-
 export const menu = [
 
   {
     id: 1,
     name: "Boneless (12 pz)",
-    price: 200,
+    price: 140,
     hasSauce: true
   },
 
   {
     id: 2,
     name: "Media orden Boneless (6 pz)",
-    price: 105,
+    price: 80,
     hasSauce: true
   },
 
+  // 🔥 productos con selector de cantidad
+
   {
     id: 3,
-    name: "Papas gajo",
+    name: "Orden de papas gajo",
     price: 60,
+    hasSauce: false,
     hasQuantity: true
   },
 
   {
     id: 4,
-    name: "Papas a la francesa",
-    price: 60,
+    name: "Orden de papas a la francesa",
+    price: 55,
+    hasSauce: false,
     hasQuantity: true
   },
 
   {
     id: 5,
-    name: "4 dedos de queso",
-    price: 60,
+    name: "Orden de dedos de queso (12 pz)",
+    price: 130,
+    hasSauce: false,
     hasQuantity: true
   },
-
-  // Extras
 
   {
     id: 6,
-    name: "Salsa extra",
-    price: 20,
-    hasQuantity: true
-  },
-
-  {
-    id: 7,
-    name: "Aderezo extra",
-    price: 25,
+    name: "Media orden dedos de queso (6 pz)",
+    price: 75,
+    hasSauce: false,
     hasQuantity: true
   }
 
