@@ -3,10 +3,16 @@ import { motion } from "framer-motion";
 export default function TransferModal({ onClose }) {
 
   const clabe = "1278 2201 3704 5101 48";
+  const card = "4027 6657 8558 2918";
+  const name = "Brenda Berenise Villarreal Hernández";
 
-  const copyClabe = () => {
-    navigator.clipboard.writeText(clabe.replace(/\s/g, ""));
-    alert("CLABE copiada ✅");
+  const copy = (text, label) => {
+
+    navigator.clipboard.writeText(
+      text.replace(/\s/g, "")
+    );
+
+    alert(`${label} copiado ✅`);
   };
 
   return (
@@ -42,7 +48,7 @@ export default function TransferModal({ onClose }) {
         {/* CLABE */}
 
         <p className="text-sm text-gray-300">
-          CLABE interbancaria:
+          CLABE interbancaria
         </p>
 
         <div className="flex gap-2 mb-3">
@@ -52,32 +58,55 @@ export default function TransferModal({ onClose }) {
           </div>
 
           <button
-            onClick={copyClabe}
-            className="
-              bg-orange-500 px-3 rounded
-              hover:scale-105 transition
-            "
+            onClick={() => copy(clabe, "CLABE")}
+            className="bg-orange-500 px-3 rounded hover:scale-105 transition"
           >
             Copiar
           </button>
 
         </div>
 
-        {/* Tarjeta */}
+        {/* TARJETA */}
 
-        <p className="mb-2">
-          <b>Tarjeta:</b><br />
-          4027 6657 8558 2918
+        <p className="text-sm text-gray-300">
+          Número de tarjeta
         </p>
 
-        <p>
-          <b>Banco:</b> Azteca
+        <div className="flex gap-2 mb-3">
+
+          <div className="flex-1 bg-white/10 p-2 rounded">
+            {card}
+          </div>
+
+          <button
+            onClick={() => copy(card, "Tarjeta")}
+            className="bg-orange-500 px-3 rounded hover:scale-105 transition"
+          >
+            Copiar
+          </button>
+
+        </div>
+
+        {/* NOMBRE */}
+
+        <p className="text-sm text-gray-300">
+          Nombre
         </p>
 
-        <p className="mb-4">
-          <b>Nombre:</b><br />
-          Brenda Berenise Villarreal Hernández
-        </p>
+        <div className="flex gap-2 mb-3">
+
+          <div className="flex-1 bg-white/10 p-2 rounded">
+            {name}
+          </div>
+
+          <button
+            onClick={() => copy(name, "Nombre")}
+            className="bg-orange-500 px-3 rounded hover:scale-105 transition"
+          >
+            Copiar
+          </button>
+
+        </div>
 
         <p className="text-yellow-400 text-sm mb-4">
           ⚠ Favor de enviar el comprobante al chat
