@@ -78,7 +78,9 @@ export default function Cart({ cart, onCheckout, onRemove }) {
               <div>
 
                 <p className="font-semibold text-white">
-                  {item.name}
+                  {item.quantity > 1
+                    ? `${item.name} x${item.quantity}`
+                    : item.name}
                 </p>
 
                 {item.mode && (
