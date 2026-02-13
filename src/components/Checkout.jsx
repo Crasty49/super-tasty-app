@@ -1,32 +1,47 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
+const BUSINESS_PHONE = "528361227012";
 
-const BUSINESS_PHONE = "528361227012"; // ← CAMBIA ESTE NÚMERO
-
-export default function Checkout({ cart, onClose, onClearCart, onSuccess, onTicket }) {
-  
+export default function Checkout({
+  cart,
+  onClose,
+  onClearCart,
+  onSuccess,
+  onTicket
+}) {
 
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [verifyOpen, setVerifyOpen] = useState(false);
-  
+
+  const [payment, setPayment] = useState("efectivo");
+  const [cash, setCash] = useState("");
 
   const total = cart.reduce(
     (sum, item) => sum + item.price,
     0
   );
 
+  const cashInvalid =
+    payment === "efectivo" &&
+    cash !== "" &&
+    Number(cash) < total;
+
   const openVerify = () => {
 
     if (!name || phone.length !== 10) {
-      alert("Número inválido");
+      alert("Datos inválidos");
+      return;
+    }
+
+    if (cashInvalid) {
+      alert("El monto es menor al total");
       return;
     }
 
     setVerifyOpen(true);
   };
-
 
   const sendWhatsApp = () => {
 
@@ -35,15 +50,15 @@ export default function Checkout({ cart, onClose, onClearCart, onSuccess, onTick
     cart.forEach(item => {
 
       let emoji = "🍗";
+      const itemName = item.name.toLowerCase();
 
-      const name = item.name.toLowerCase();
+      if (itemName.includes("papas")) emoji = "🍟";
+      if (itemName.includes("queso")) emoji = "🧀";
 
-      if (name.includes("papas")) emoji = "🍟";
-      if (name.includes("queso")) emoji = "🧀";
-
-      const qtyText = item.quantity > 1
-        ? ` x${item.quantity}`
-        : "";
+      const qtyText =
+        item.quantity > 1
+          ? ` x${item.quantity}`
+          : "";
 
       message += `${emoji} ${item.name}${qtyText}\n`;
 
@@ -67,29 +82,36 @@ export default function Checkout({ cart, onClose, onClearCart, onSuccess, onTick
 
     });
 
-
     message += `💰 Total: $${total}\n\n`;
-    message += `Cliente: ${name}\nTel: ${phone}`;
+
+    message += `💳 Pago: ${
+      payment === "efectivo"
+        ? "Efectivo"
+        : "Transferencia"
+    }\n`;
+
+    if (payment === "efectivo") {
+
+      const change = Number(cash) - total;
+
+      message += `Cliente paga con: $${cash}\n`;
+      message += `Feria: $${change}\n`;
+    }
+
+    message += `\nCliente: ${name}\nTel: ${phone}`;
 
     const url =
       `https://wa.me/${BUSINESS_PHONE}?text=${encodeURIComponent(message)}`;
 
-    // 👉 MOSTRAR TICKET PRIMERO
     onTicket(cart, total);
-
-    // 👉 luego abrir WhatsApp
-    setTimeout(() => {
-      window.open(url, "_blank");
-    }, 400);
-
-    // 👉 limpiar después
     onClearCart();
     onSuccess();
+
+    window.open(url, "_blank");
 
     setVerifyOpen(false);
     onClose();
   };
-
 
   return (
 
@@ -98,8 +120,6 @@ export default function Checkout({ cart, onClose, onClearCart, onSuccess, onTick
       animate={{ opacity: 1 }}
       className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-[9999]"
     >
-
-      {/* MAIN CHECKOUT */}
 
       <motion.div
         initial={{ scale: 0.9 }}
@@ -111,6 +131,8 @@ export default function Checkout({ cart, onClose, onClearCart, onSuccess, onTick
           Confirmar pedido
         </h2>
 
+        {/* Nombre */}
+
         <input
           placeholder="Nombre"
           value={name}
@@ -118,16 +140,16 @@ export default function Checkout({ cart, onClose, onClearCart, onSuccess, onTick
           className="w-full mb-2 p-2 rounded bg-white/10"
         />
 
+        {/* Teléfono */}
+
         <input
           placeholder="Teléfono"
           type="tel"
           inputMode="numeric"
           value={phone}
           onChange={e => {
-
             const clean = e.target.value.replace(/\D/g, "");
             setPhone(clean);
-
           }}
           className={`
             w-full mb-1 p-2 rounded
@@ -143,20 +165,73 @@ export default function Checkout({ cart, onClose, onClearCart, onSuccess, onTick
           </p>
         )}
 
+        {/* MÉTODO DE PAGO */}
+
+        <div className="mb-3">
+
+          <p className="text-sm text-gray-300 mb-1">
+            Método de pago
+          </p>
+
+          <div className="flex gap-4 mb-2">
+
+            <label>
+              <input
+                type="radio"
+                checked={payment === "efectivo"}
+                onChange={() => setPayment("efectivo")}
+              /> Efectivo
+            </label>
+
+            <label>
+              <input
+                type="radio"
+                checked={payment === "transferencia"}
+                onChange={() => setPayment("transferencia")}
+              /> Transferencia
+            </label>
+
+          </div>
+
+          {payment === "efectivo" && (
+
+            <>
+
+              <input
+                placeholder="Monto con el que paga"
+                type="number"
+                value={cash}
+                onChange={e => setCash(e.target.value)}
+                className={`
+                  w-full p-2 rounded mb-1
+                  ${cashInvalid
+                    ? "bg-red-500/20 border border-red-500"
+                    : "bg-white/10"}
+                `}
+              />
+
+              {cashInvalid && (
+                <p className="text-red-400 text-sm">
+                  El monto es menor al total
+                </p>
+              )}
+
+            </>
+
+          )}
+
+        </div>
+
+        {/* Resumen */}
 
         <div className="mb-4 text-sm">
 
           {cart.map((item, i) => (
 
-            <div key={i} className="mb-1">
+            <div key={i}>
 
               {item.name}
-
-              {item.includedSauces?.length > 0 &&
-                ` — ${item.includedSauces.join(", ")}`}
-
-              {item.extraSauces?.length > 0 &&
-                ` (+${item.extraSauces.join(", ")})`}
+              {item.quantity > 1 && ` x${item.quantity}`}
 
             </div>
 
@@ -168,11 +243,19 @@ export default function Checkout({ cart, onClose, onClearCart, onSuccess, onTick
 
         </div>
 
+        {/* Botones */}
+
         <div className="flex gap-3">
 
           <button
             onClick={openVerify}
-            className="flex-1 bg-gradient-to-r from-red-600 to-orange-500 py-2 rounded-lg"
+            disabled={cashInvalid}
+            className={`
+              flex-1 py-2 rounded-lg
+              ${cashInvalid
+                ? "bg-gray-600 cursor-not-allowed"
+                : "bg-gradient-to-r from-red-600 to-orange-500"}
+            `}
           >
             Confirmar
           </button>
@@ -188,7 +271,7 @@ export default function Checkout({ cart, onClose, onClearCart, onSuccess, onTick
 
       </motion.div>
 
-      {/* VERIFICACIÓN */}
+      {/* MODAL VERIFICACIÓN */}
 
       <AnimatePresence>
 
@@ -205,7 +288,6 @@ export default function Checkout({ cart, onClose, onClearCart, onSuccess, onTick
               initial={{ scale: 0.8 }}
               animate={{ scale: 1 }}
               exit={{ scale: 0.8 }}
-              transition={{ type: "spring", stiffness: 260, damping: 20 }}
               className="backdrop-blur-xl bg-black/50 border border-white/10 rounded-xl p-6 w-full max-w-sm text-white"
             >
 
@@ -214,7 +296,7 @@ export default function Checkout({ cart, onClose, onClearCart, onSuccess, onTick
               </h3>
 
               <p>Nombre: <b>{name}</b></p>
-              <p className="mb-4">Teléfono: <b>{phone}</b></p>
+              <p className="mb-4">Tel: <b>{phone}</b></p>
 
               <div className="flex gap-3">
 
