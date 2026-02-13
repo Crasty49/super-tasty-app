@@ -34,15 +34,25 @@ export default function Checkout({ cart, onClose, onClearCart, onSuccess, onTick
 
     cart.forEach(item => {
 
+      let emoji = "🍗";
+
+      const name = item.name.toLowerCase();
+
+      if (name.includes("papas")) emoji = "🍟";
+      if (name.includes("queso")) emoji = "🧀";
+
       const qtyText = item.quantity > 1
         ? ` x${item.quantity}`
         : "";
 
-      message += `🍗 ${item.name}${qtyText}\n`;
-
+      message += `${emoji} ${item.name}${qtyText}\n`;
 
       if (item.mode) {
-        message += `Modo: ${item.mode === "banados" ? "Bañados" : "Naturales"}\n`;
+        message += `Modo: ${
+          item.mode === "banados"
+            ? "Bañados"
+            : "Naturales"
+        }\n`;
       }
 
       if (item.includedSauces?.length) {
@@ -56,6 +66,7 @@ export default function Checkout({ cart, onClose, onClearCart, onSuccess, onTick
       message += `Precio: $${item.price}\n\n`;
 
     });
+
 
     message += `💰 Total: $${total}\n\n`;
     message += `Cliente: ${name}\nTel: ${phone}`;
