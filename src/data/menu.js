@@ -41,7 +41,7 @@ export const menu = [
 
   {
     id: 5,
-    name: "Dedos de queso (12 pz)",
+    name: "Orden de dedos de queso (12 pz)",
     price: 130,
     hasSauce: false,
     hasQuantity: true
