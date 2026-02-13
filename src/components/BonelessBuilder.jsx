@@ -2,9 +2,14 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { sauces } from "../data/menu";
 
-const EXTRA_PRICE = 15;
+const EXTRA_SAUCE_PRICE = 20;
+const DRESSING_PRICE = 25;
 
-export default function BonelessBuilder({ item, onConfirm, onClose }) {
+export default function BonelessBuilder({
+  item,
+  onConfirm,
+  onClose
+}) {
 
   const [mode, setMode] = useState("banados");
   const [included, setIncluded] = useState([]);
@@ -12,7 +17,7 @@ export default function BonelessBuilder({ item, onConfirm, onClose }) {
 
   if (!item) return null;
 
-  // ---- lógica ----
+  // ===== INCLUIDAS =====
 
   const addIncluded = sauce => {
     if (included.length >= 2) return;
@@ -25,8 +30,10 @@ export default function BonelessBuilder({ item, onConfirm, onClose }) {
     setIncluded(copy);
   };
 
-  const addExtra = sauce =>
-    setExtras([...extras, sauce]);
+  // ===== EXTRAS =====
+
+  const addExtra = extra =>
+    setExtras([...extras, extra]);
 
   const removeExtra = i => {
     const copy = [...extras];
@@ -34,10 +41,18 @@ export default function BonelessBuilder({ item, onConfirm, onClose }) {
     setExtras(copy);
   };
 
-  const total =
-    item.price + extras.length * EXTRA_PRICE;
+  const extraTotal = extras.reduce(
+    (sum, e) =>
+      sum +
+      (e === "Aderezo"
+        ? DRESSING_PRICE
+        : EXTRA_SAUCE_PRICE),
+    0
+  );
 
-  // ---- UI ----
+  const total = item.price + extraTotal;
+
+  // ===== UI =====
 
   return (
 
@@ -56,7 +71,7 @@ export default function BonelessBuilder({ item, onConfirm, onClose }) {
       "
     >
 
-      {/* ✕ botón cerrar */}
+      {/* cerrar */}
 
       <button
         onClick={onClose}
@@ -64,15 +79,10 @@ export default function BonelessBuilder({ item, onConfirm, onClose }) {
           absolute top-3 right-3
           w-8 h-8 rounded-full
           bg-white/10 hover:bg-red-500
-          flex items-center justify-center
-          text-white font-bold
-          transition
         "
       >
         ✕
       </button>
-
-      {/* título */}
 
       <h2 className="text-xl font-bold mb-4 text-orange-400">
         Configurar Boneless
@@ -82,29 +92,27 @@ export default function BonelessBuilder({ item, onConfirm, onClose }) {
 
       <div className="mb-5 space-y-2">
 
-        <label className="flex gap-2 items-center cursor-pointer">
+        <label>
           <input
             type="radio"
             checked={mode === "banados"}
             onChange={() => setMode("banados")}
-          />
-          Bañados
+          /> Bañados
         </label>
 
-        <label className="flex gap-2 items-center cursor-pointer">
+        <label>
           <input
             type="radio"
             checked={mode === "naturales"}
             onChange={() => setMode("naturales")}
-          />
-          Naturales + botecitos
+          /> Naturales + botecitos
         </label>
 
       </div>
 
       {/* incluidas */}
 
-      <h3 className="font-semibold mb-2 text-orange-300">
+      <h3 className="mb-2 text-orange-300">
         Incluidas (máx 2)
       </h3>
 
@@ -115,12 +123,7 @@ export default function BonelessBuilder({ item, onConfirm, onClose }) {
           <button
             key={s}
             onClick={() => addIncluded(s)}
-            className="
-              px-3 py-1
-              bg-white/10
-              hover:bg-orange-500
-              rounded-lg transition
-            "
+            className="px-3 py-1 bg-white/10 rounded-lg"
           >
             + {s}
           </button>
@@ -133,11 +136,7 @@ export default function BonelessBuilder({ item, onConfirm, onClose }) {
 
         <div
           key={i}
-          className="
-            flex justify-between
-            text-sm mb-1
-            bg-white/5 px-2 py-1 rounded
-          "
+          className="flex justify-between text-sm mb-1"
         >
           {s}
           <button onClick={() => removeIncluded(i)}>
@@ -149,8 +148,8 @@ export default function BonelessBuilder({ item, onConfirm, onClose }) {
 
       {/* extras */}
 
-      <h3 className="font-semibold mt-5 mb-2 text-red-400">
-        Extras (+$15)
+      <h3 className="mt-5 mb-2 text-red-400">
+        Extras
       </h3>
 
       <div className="flex flex-wrap gap-2 mb-3">
@@ -160,17 +159,19 @@ export default function BonelessBuilder({ item, onConfirm, onClose }) {
           <button
             key={s + "extra"}
             onClick={() => addExtra(s)}
-            className="
-              px-3 py-1
-              bg-red-500/20
-              hover:bg-red-500
-              rounded-lg transition
-            "
+            className="px-3 py-1 bg-red-500/20 rounded-lg"
           >
-            + {s}
+            + {s} ($20)
           </button>
 
         ))}
+
+        <button
+          onClick={() => addExtra("Aderezo")}
+          className="px-3 py-1 bg-yellow-500/20 rounded-lg"
+        >
+          + Aderezo ($25)
+        </button>
 
       </div>
 
@@ -178,13 +179,12 @@ export default function BonelessBuilder({ item, onConfirm, onClose }) {
 
         <div
           key={i}
-          className="
-            flex justify-between
-            text-sm mb-1
-            bg-white/5 px-2 py-1 rounded
-          "
+          className="flex justify-between text-sm mb-1"
         >
-          {s} (+$15)
+          {s} (
+          ${s === "Aderezo"
+            ? DRESSING_PRICE
+            : EXTRA_SAUCE_PRICE})
           <button onClick={() => removeExtra(i)}>
             ✕
           </button>
@@ -214,25 +214,9 @@ export default function BonelessBuilder({ item, onConfirm, onClose }) {
           mt-4 w-full
           bg-gradient-to-r from-red-600 to-orange-500
           py-2 rounded-lg
-          hover:scale-105 transition
-          font-semibold
         "
       >
         Confirmar pedido
-      </button>
-
-      {/* cancelar */}
-
-      <button
-        onClick={onClose}
-        className="
-          mt-3 w-full
-          bg-white/10 hover:bg-white/20
-          py-2 rounded-lg
-          text-gray-300
-        "
-      >
-        Cancelar
       </button>
 
     </motion.div>
