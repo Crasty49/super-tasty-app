@@ -125,18 +125,20 @@ export default function Menu({ addToCart }) {
               transition={{ type: "spring", stiffness: 260, damping: 20 }}
             >
 
-              <BonelessBuilder
-                item={builderItem}
-                onConfirm={(config) => {
+            <BonelessBuilder
+              item={builderItem}
 
-                  addToCart(config, {
-                    top: window.innerHeight / 2,
-                    left: window.innerWidth / 2
-                  });
+              onConfirm={(config) => {
+                addToCart(config, {
+                  top: window.innerHeight / 2,
+                  left: window.innerWidth / 2
+                });
 
-                  setBuilderItem(null);
-                }}
-              />
+                setBuilderItem(null);
+              }}
+
+              onClose={() => setBuilderItem(null)}
+            />
 
             </motion.div>
 
