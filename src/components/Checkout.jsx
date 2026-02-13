@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import TransferModal from "./TransferModal";
+
 
 const BUSINESS_PHONE = "528361227012";
 
@@ -17,6 +19,8 @@ export default function Checkout({
 
   const [payment, setPayment] = useState("efectivo");
   const [cash, setCash] = useState("");
+  const [transferOpen, setTransferOpen] = useState(false);
+
 
   const total = cart.reduce(
     (sum, item) => sum + item.price,
@@ -187,7 +191,10 @@ export default function Checkout({
               <input
                 type="radio"
                 checked={payment === "transferencia"}
-                onChange={() => setPayment("transferencia")}
+                onChange={() => {
+                  setPayment("transferencia");
+                  setTransferOpen(true);
+                }}
               /> Transferencia
             </label>
 
@@ -291,6 +298,7 @@ export default function Checkout({
               className="backdrop-blur-xl bg-black/50 border border-white/10 rounded-xl p-6 w-full max-w-sm text-white"
             >
 
+
               <h3 className="text-lg font-bold mb-3 text-orange-400">
                 Confirmar datos
               </h3>
@@ -323,6 +331,13 @@ export default function Checkout({
         )}
 
       </AnimatePresence>
+      {/* MODAL TRANSFERENCIA */}
+
+      {transferOpen && (
+        <TransferModal
+          onClose={() => setTransferOpen(false)}
+        />
+      )}
 
     </motion.div>
   );
