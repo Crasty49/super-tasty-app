@@ -140,7 +140,16 @@ export default function App() {
       {successOpen && (
         <SuccessModal onClose={() => setSuccessOpen(false)} />
       )}
+      {ticketOpen && (
+        <TicketModal
+          cart={lastOrder}
+          total={lastTotal}
+          onClose={() => setTicketOpen(false)}
+        />
+      )}
+
 
     </div>
+
   );
 }
