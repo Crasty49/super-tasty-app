@@ -2,7 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 
-const BUSINESS_PHONE = "528361227012"; // ← CAMBIA ESTE NÚMERO
+const BUSINESS_PHONE = "528361084545"; // ← CAMBIA ESTE NÚMERO
 
 export default function Checkout({ cart, onClose, onClearCart, onSuccess, onTicket }) {
   
