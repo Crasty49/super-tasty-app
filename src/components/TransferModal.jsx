@@ -45,6 +45,14 @@ export default function TransferModal({ onClose }) {
           Datos para transferencia
         </h2>
 
+        <p className="text-sm text-gray-300">
+          Banco
+        </p>
+
+        <div className="mb-3 bg-white/10 p-2 rounded">
+          Azteca
+        </div>
+
         {/* CLABE */}
 
         <p className="text-sm text-gray-300">
@@ -107,6 +115,17 @@ export default function TransferModal({ onClose }) {
           </button>
 
         </div>
+        
+        {/* CONCEPTO */}
+
+        <p className="text-sm text-gray-300 mt-2">
+          Concepto
+        </p>
+
+        <div className="bg-white/10 p-2 rounded mb-3">
+          Pago (tu nombre)
+        </div>
+
 
         <p className="text-yellow-400 text-sm mb-4">
           ⚠ El pedido se iniciará al momento que envíes tu comprobante de transferencia y se corrobore la llegada de el monto establecido.
