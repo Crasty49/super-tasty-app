@@ -109,7 +109,7 @@ export default function TransferModal({ onClose }) {
         </div>
 
         <p className="text-yellow-400 text-sm mb-4">
-          ⚠ Favor de enviar el comprobante al chat
+          ⚠ El pedido se iniciará al momento que envíes tu comprobante de transferencia y se corrobore la llegada de el monto establecido.
         </p>
 
         <button
