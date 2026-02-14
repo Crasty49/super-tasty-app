@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 
-export default function Cart({ cart, onCheckout, onRemove }) {
+export default function Cart({ cart, onCheckout, onRemove, isOpen }) {
 
   const total = cart.reduce(
     (sum, item) => sum + item.price,
@@ -141,13 +141,15 @@ export default function Cart({ cart, onCheckout, onRemove }) {
 
         <motion.button
           layout
-          whileTap={{ scale: 0.97 }}
-          onClick={onCheckout}
-          className="
-            w-full mb-3
-            bg-gradient-to-r from-red-600 to-orange-500
-            py-2 rounded-lg
-          "
+          whileTap={{ scale: isOpen ? 0.97 : 1 }}
+          onClick={isOpen ? onCheckout : null}
+          disabled={!isOpen}
+          className={`
+            w-full mb-3 py-2 rounded-lg
+            ${!isOpen
+              ? "bg-gray-600 cursor-not-allowed"
+              : "bg-gradient-to-r from-red-600 to-orange-500"}
+          `}
         >
           Confirmar pedido
         </motion.button>
