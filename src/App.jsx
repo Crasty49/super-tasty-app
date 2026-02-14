@@ -133,19 +133,8 @@ export default function App() {
           🔒 Estamos cerrados.
           <br />
           Sábado y domingo de 10:00 AM a 8:00 PM
-
-          {timeLeft && (
-            <div className="mt-3 text-white font-bold text-lg">
-              ⏳ Abrimos en:
-              <br />
-              {String(timeLeft.hours).padStart(2, "0")}h{" "}
-              {String(timeLeft.minutes).padStart(2, "0")}m{" "}
-              {String(timeLeft.seconds).padStart(2, "0")}s
-            </div>
-          )}
         </div>
       )}
-
 
       {/* CONTENIDO */}
       <div className="max-w-4xl mx-auto p-6 space-y-6">
