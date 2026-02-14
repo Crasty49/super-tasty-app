@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 import Menu from "./pages/Menu";
@@ -20,6 +20,8 @@ export default function App() {
   const [ticketOpen, setTicketOpen] = useState(false);
   const [lastOrder, setLastOrder] = useState([]);
   const [lastTotal, setLastTotal] = useState(0);
+  const [timeLeft, setTimeLeft] = useState(null);
+
 
   // 🔥 HORARIO
   const now = new Date();
@@ -30,6 +32,62 @@ export default function App() {
     (day === 6 || day === 0) &&
     hour >= 10 &&
     hour < 20;
+
+      useEffect(() => {
+
+      if (isOpen) {
+        setTimeLeft(null);
+        return;
+      }
+
+      const calculateNextOpening = () => {
+        const now = new Date();
+        const next = new Date(now);
+
+        // Buscar próximo sábado o domingo 10:00 AM
+        while (
+          !(
+            (next.getDay() === 6 || next.getDay() === 0) &&
+            next.getHours() < 10
+          )
+        ) {
+          next.setDate(next.getDate() + 1);
+          next.setHours(10, 0, 0, 0);
+        }
+
+        if (next.getHours() !== 10) {
+          next.setHours(10, 0, 0, 0);
+        }
+
+        return next;
+      };
+
+      const updateCountdown = () => {
+
+        const now = new Date();
+        const nextOpen = calculateNextOpening();
+        const diff = nextOpen - now;
+
+        if (diff <= 0) {
+          setTimeLeft(null);
+          return;
+        }
+
+        const hours = Math.floor(diff / (1000 * 60 * 60));
+        const minutes = Math.floor((diff / (1000 * 60)) % 60);
+        const seconds = Math.floor((diff / 1000) % 60);
+
+        setTimeLeft({ hours, minutes, seconds });
+      };
+
+      updateCountdown();
+
+      const interval = setInterval(updateCountdown, 1000);
+
+      return () => clearInterval(interval);
+
+    }, [isOpen]);
+
 
   const addToCart = (item, originRect) => {
 
@@ -75,8 +133,19 @@ export default function App() {
           🔒 Estamos cerrados.
           <br />
           Sábado y domingo de 10:00 AM a 8:00 PM
+
+          {timeLeft && (
+            <div className="mt-3 text-white font-bold text-lg">
+              ⏳ Abrimos en:
+              <br />
+              {String(timeLeft.hours).padStart(2, "0")}h{" "}
+              {String(timeLeft.minutes).padStart(2, "0")}m{" "}
+              {String(timeLeft.seconds).padStart(2, "0")}s
+            </div>
+          )}
         </div>
       )}
+
 
       {/* CONTENIDO */}
       <div className="max-w-4xl mx-auto p-6 space-y-6">
