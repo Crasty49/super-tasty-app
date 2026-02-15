@@ -29,7 +29,7 @@ export default function App() {
   const isOpen =
     (day === 6 || day === 0) &&
     hour >= 12 &&
-    hour < 20;
+    hour < 21;
 
   const addToCart = (item, originRect) => {
 
@@ -74,7 +74,7 @@ export default function App() {
         ">
           🔒 Estamos cerrados.
           <br />
-          Sábado y domingo de 12:00 PM a 8:00 PM
+          Sábado y domingo de 12:00 PM a 9:00 PM
         </div>
       )}
 
