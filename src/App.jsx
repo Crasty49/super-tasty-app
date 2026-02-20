@@ -84,6 +84,12 @@ export default function App() {
         timeoutRef = setTimeout(() => {
           calcularEstado();
         }, ms);
+
+        // 🔥 respaldo: revisar cada 5s por si el navegador duerme timers
+        clearInterval(window.__horarioInterval);
+        window.__horarioInterval = setInterval(() => {
+          calcularEstado();
+        }, 5000);
       };
 
       // 🔥 escuchar horario firebase
@@ -110,6 +116,7 @@ export default function App() {
         unsubHorario();
         unsubMsg();
         clearTimeout(timeoutRef);
+        clearInterval(window.__horarioInterval);
       };
 
     }, []);
