@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { sauces } from "../data/menu";
+
 import useBackClose from "../hooks/useBackClose";
 
+import { db } from "../firebase/config";
+import { doc, onSnapshot } from "firebase/firestore";
 
 const EXTRA_SAUCE_PRICE = 20;
 const DRESSING_PRICE = 25;
@@ -16,6 +18,8 @@ export default function BonelessBuilder({
   const [mode, setMode] = useState("banados");
   const [included, setIncluded] = useState([]);
   const [extras, setExtras] = useState([]);
+  const [sauces, setSauces] = useState([]);
+  const [ranchDisponible, setRanchDisponible] = useState(true);
 
   useBackClose(true, onClose);
 
@@ -28,6 +32,38 @@ export default function BonelessBuilder({
       setIncluded([]);
     }
   }, [mode]);
+
+  useEffect(() => {
+    const ref = doc(db, "config", "salsas");
+
+    const unsub = onSnapshot(ref, (snap) => {
+      if (!snap.exists()) return;
+
+      const data = snap.data();
+
+      // 👉 saber si ranch está activo
+      const ranchActivo = data.Ranch === true;
+
+      // 👉 salsas normales (sin ranch)
+      const disponibles = Object.keys(data).filter(
+        (salsa) => data[salsa] === true && salsa !== "Ranch"
+      );
+
+      // 👉 nombres bonitos
+      const formateadas = disponibles.map((s) => {
+        if (s === "BBQ_Hot") return "BBQ Hot";
+        if (s === "Mango_Habanero") return "Mango habanero";
+        return s;
+      });
+
+      setSauces(formateadas);
+
+      // 👉 guardar si ranch activo para extras
+      setRanchDisponible(ranchActivo);
+    });
+
+    return () => unsub();
+  }, []);
 
   // ===== INCLUIDAS =====
 
@@ -194,12 +230,14 @@ export default function BonelessBuilder({
 
         ))}
 
+      {ranchDisponible && (
         <button
           onClick={() => addExtra("Aderezo")}
           className="px-3 py-1 bg-yellow-500/20 rounded-lg"
         >
           + Aderezo ($25)
         </button>
+      )}
 
       </div>
 

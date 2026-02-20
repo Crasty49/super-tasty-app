@@ -9,6 +9,10 @@ import PromoSlider from "./components/PromoSlider";
 import SuccessModal from "./components/SuccessModal";
 import TicketModal from "./components/TicketModal";
 
+import { db } from "./firebase/config";
+import { doc, onSnapshot } from "firebase/firestore";
+import { useEffect } from "react";
+
 export default function App() {
 
   const [cart, setCart] = useState([]);
@@ -21,15 +25,61 @@ export default function App() {
   const [lastOrder, setLastOrder] = useState([]);
   const [lastTotal, setLastTotal] = useState(0);
 
-  // 🔥 HORARIO
-  const now = new Date();
-  const day = now.getDay(); // 0 = domingo, 6 = sábado
-  const hour = now.getHours();
+  const [horario, setHorario] = useState({});
+  const [mensaje, setMensaje] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
 
-  const isOpen =
-    (day === 6 || day === 0) &&
-    hour >= 12 &&
-    hour < 20;
+    useEffect(() => {
+
+    // 🔥 HORARIO
+    const refHorario = doc(db, "config", "horario");
+
+    const unsubHorario = onSnapshot(refHorario, (snap) => {
+      if (!snap.exists()) return;
+
+      const data = snap.data();
+      setHorario(data);
+
+      const now = new Date();
+      const dias = [
+        "domingo","lunes","martes","miercoles",
+        "jueves","viernes","sabado"
+      ];
+
+      const hoy = dias[now.getDay()];
+      const horaActual =
+        now.getHours().toString().padStart(2,"0") +
+        ":" +
+        now.getMinutes().toString().padStart(2,"0");
+
+      const apertura = data[hoy]?.apertura || "00:00";
+      const cierre = data[hoy]?.cierre || "00:00";
+      const activo = data[hoy]?.activo ?? true;
+
+      const abierto =
+        activo &&
+        horaActual >= apertura &&
+        horaActual < cierre;
+
+      setIsOpen(abierto);
+    });
+
+    // 🔴 MENSAJE ROJO
+    const refMsg = doc(db,"config","mensaje");
+
+    const unsubMsg = onSnapshot(refMsg,(snap)=>{
+      if(snap.exists()){
+        setMensaje(snap.data().texto);
+      }
+    });
+
+    return () => {
+      unsubHorario();
+      unsubMsg();
+    };
+
+  }, []);
+
 
   const addToCart = (item, originRect) => {
 
@@ -50,6 +100,7 @@ export default function App() {
       setFlyAnim(null);
     }, 600);
   };
+  
 
   return (
 
@@ -72,9 +123,7 @@ export default function App() {
           bg-red-600/20 border border-red-500
           rounded-xl text-center text-red-400
         ">
-          🔒 Estamos cerrados.
-          <br />
-          Sábado y domingo de 12:00 PM a 8:00 PM
+          {mensaje || "Cerrado"}
         </div>
       )}
 

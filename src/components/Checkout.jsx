@@ -3,7 +3,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import TransferModal from "./TransferModal";
 import useBackClose from "../hooks/useBackClose";
 
-
+import { db } from "../firebase/config";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 
 const BUSINESS_PHONE = "528361227012";
 
@@ -51,7 +52,8 @@ export default function Checkout({
     setVerifyOpen(true);
   };
 
-  const sendWhatsApp = () => {
+  const sendWhatsApp = async () => {
+    
 
     let message = `🔥 Pedido Super Tasty Boneless\n\n`;
 
@@ -107,6 +109,20 @@ export default function Checkout({
     }
 
     message += `\nCliente: ${name}\nTel: ${phone}`;
+
+    // 🔥 GUARDAR PEDIDO EN FIREBASE
+await addDoc(collection(db, "pedidos"), {
+  cliente: name,
+  telefono: phone,
+  productos: cart,
+  total: total,
+  pago: payment,
+  efectivo: payment === "efectivo" ? cash : null,
+  cambio: payment === "efectivo" ? Number(cash) - total : null,
+  estado: "nuevo",
+  fecha: serverTimestamp()
+});
+    
 
     const url =
       `https://wa.me/${BUSINESS_PHONE}?text=${encodeURIComponent(message)}`;

@@ -1,12 +1,29 @@
 import { menu } from "../data/menu";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import BonelessBuilder from "../components/BonelessBuilder";
+
+import { db } from "../firebase/config";
+import { doc, onSnapshot } from "firebase/firestore";
 
 export default function Menu({ addToCart }) {
 
   const [builderItem, setBuilderItem] = useState(null);
   const [qty, setQty] = useState({});
+  const [productosActivos, setProductosActivos] = useState({});
+
+  // 🔥 LEER PRODUCTOS DESDE FIREBASE
+  useEffect(() => {
+    const ref = doc(db, "config", "productos");
+
+    const unsub = onSnapshot(ref, (snap) => {
+      if (snap.exists()) {
+        setProductosActivos(snap.data());
+      }
+    });
+
+    return () => unsub();
+  }, []);
 
   const changeQty = (id, delta) => {
     setQty(prev => ({
@@ -19,7 +36,18 @@ export default function Menu({ addToCart }) {
 
     <div className="space-y-4">
 
-      {menu.map(item => {
+      {menu
+        .filter(item => {
+
+          if (item.name.includes("12")) return productosActivos.Boneless_12 !== false;
+          if (item.name.includes("6 pz")) return productosActivos.Boneless_6 !== false;
+          if (item.name.includes("gajo")) return productosActivos.Papas_Gajo !== false;
+          if (item.name.includes("francesa")) return productosActivos.Papas_Francesa !== false;
+          if (item.name.includes("Dedos")) return productosActivos.Dedos_Queso !== false;
+
+          return true;
+        })
+        .map(item => {
 
         const quantity = qty[item.id] || 1;
 
@@ -36,7 +64,6 @@ export default function Menu({ addToCart }) {
               "
             >
 
-
             <h3 className="font-semibold text-lg text-white">
               {item.name}
             </h3>
@@ -45,7 +72,7 @@ export default function Menu({ addToCart }) {
               ${item.price * quantity}
             </p>
 
-            {/* SELECTOR DE CANTIDAD */}
+            {/* SELECTOR CANTIDAD */}
 
             {item.hasQuantity && (
 
