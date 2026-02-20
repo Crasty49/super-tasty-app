@@ -31,54 +31,69 @@ export default function App() {
 
     useEffect(() => {
 
-    // 🔥 HORARIO
-    const refHorario = doc(db, "config", "horario");
+      let horarioData = {};
 
-    const unsubHorario = onSnapshot(refHorario, (snap) => {
-      if (!snap.exists()) return;
+      const calcularEstado = () => {
+        if (!horarioData) return;
 
-      const data = snap.data();
-      setHorario(data);
+        const now = new Date();
 
-      const now = new Date();
-      const dias = [
-        "domingo","lunes","martes","miercoles",
-        "jueves","viernes","sabado"
-      ];
+        const dias = [
+          "domingo","lunes","martes","miercoles",
+          "jueves","viernes","sabado"
+        ];
 
-      const hoy = dias[now.getDay()];
-      const horaActual =
-        now.getHours().toString().padStart(2,"0") +
-        ":" +
-        now.getMinutes().toString().padStart(2,"0");
+        const hoy = dias[now.getDay()];
 
-      const apertura = data[hoy]?.apertura || "00:00";
-      const cierre = data[hoy]?.cierre || "00:00";
-      const activo = data[hoy]?.activo ?? true;
+        const horaActual =
+          now.getHours().toString().padStart(2,"0") +
+          ":" +
+          now.getMinutes().toString().padStart(2,"0");
 
-      const abierto =
-        activo &&
-        horaActual >= apertura &&
-        horaActual < cierre;
+        const activo = horarioData[hoy]?.activo ?? true;
+        const apertura = horarioData[hoy]?.apertura || "00:00";
+        const cierre = horarioData[hoy]?.cierre || "00:00";
 
-      setIsOpen(abierto);
-    });
+        const abierto =
+          activo &&
+          horaActual >= apertura &&
+          horaActual < cierre;
 
-    // 🔴 MENSAJE ROJO
-    const refMsg = doc(db,"config","mensaje");
+        setIsOpen(abierto);
+      };
 
-    const unsubMsg = onSnapshot(refMsg,(snap)=>{
-      if(snap.exists()){
-        setMensaje(snap.data().texto);
-      }
-    });
+      // 🔥 escuchar firebase
+      const refHorario = doc(db, "config", "horario");
 
-    return () => {
-      unsubHorario();
-      unsubMsg();
-    };
+      const unsubHorario = onSnapshot(refHorario, (snap) => {
+        if (!snap.exists()) return;
 
-  }, []);
+        horarioData = snap.data();
+        setHorario(horarioData);
+
+        calcularEstado(); // calcular al recibir cambios
+      });
+
+      // ⏱ revisar cada 20 segundos sin recargar
+      const interval = setInterval(() => {
+        calcularEstado();
+      }, 20000);
+
+      // 🔴 mensaje
+      const refMsg = doc(db,"config","mensaje");
+      const unsubMsg = onSnapshot(refMsg,(snap)=>{
+        if(snap.exists()){
+          setMensaje(snap.data().texto);
+        }
+      });
+
+      return () => {
+        unsubHorario();
+        unsubMsg();
+        clearInterval(interval);
+      };
+
+    }, []);
 
 
   const addToCart = (item, originRect) => {
