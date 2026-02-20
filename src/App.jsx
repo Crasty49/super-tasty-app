@@ -32,8 +32,10 @@ export default function App() {
     useEffect(() => {
 
       let horarioData = {};
+      let timeoutRef;
 
       const calcularEstado = () => {
+
         if (!horarioData) return;
 
         const now = new Date();
@@ -49,11 +51,9 @@ export default function App() {
         const apertura = horarioData[hoy]?.apertura || "00:00";
         const cierre = horarioData[hoy]?.cierre || "00:00";
 
-        // 🔥 convertir hora actual a minutos
         const minutosActual =
           now.getHours() * 60 + now.getMinutes();
 
-        // 🔥 convertir apertura y cierre a minutos
         const [hA, mA] = apertura.split(":").map(Number);
         const [hC, mC] = cierre.split(":").map(Number);
 
@@ -66,9 +66,27 @@ export default function App() {
           minutosActual < minutosCierre;
 
         setIsOpen(abierto);
+
+        // 🔥 calcular cuando volver a revisar EXACTO
+        let proximoCambio;
+
+        if (abierto) {
+          proximoCambio = minutosCierre - minutosActual;
+        } else {
+          proximoCambio = minutosApertura - minutosActual;
+        }
+
+        if (proximoCambio < 0) proximoCambio = 1;
+
+        const ms = proximoCambio * 60000;
+
+        clearTimeout(timeoutRef);
+        timeoutRef = setTimeout(() => {
+          calcularEstado();
+        }, ms);
       };
 
-      // 🔥 escuchar firebase
+      // 🔥 escuchar horario firebase
       const refHorario = doc(db, "config", "horario");
 
       const unsubHorario = onSnapshot(refHorario, (snap) => {
@@ -77,15 +95,10 @@ export default function App() {
         horarioData = snap.data();
         setHorario(horarioData);
 
-        calcularEstado(); // calcular al recibir cambios
+        calcularEstado();
       });
 
-      // ⏱ revisar cada 20 segundos sin recargar
-      const interval = setInterval(() => {
-        calcularEstado();
-      }, 20000);
-
-      // 🔴 mensaje
+      // 🔴 mensaje rojo
       const refMsg = doc(db,"config","mensaje");
       const unsubMsg = onSnapshot(refMsg,(snap)=>{
         if(snap.exists()){
@@ -96,7 +109,7 @@ export default function App() {
       return () => {
         unsubHorario();
         unsubMsg();
-        clearInterval(interval);
+        clearTimeout(timeoutRef);
       };
 
     }, []);
