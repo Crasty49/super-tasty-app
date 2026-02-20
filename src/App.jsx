@@ -45,19 +45,25 @@ export default function App() {
 
         const hoy = dias[now.getDay()];
 
-        const horaActual =
-          now.getHours().toString().padStart(2,"0") +
-          ":" +
-          now.getMinutes().toString().padStart(2,"0");
-
         const activo = horarioData[hoy]?.activo ?? true;
         const apertura = horarioData[hoy]?.apertura || "00:00";
         const cierre = horarioData[hoy]?.cierre || "00:00";
 
+        // 🔥 convertir hora actual a minutos
+        const minutosActual =
+          now.getHours() * 60 + now.getMinutes();
+
+        // 🔥 convertir apertura y cierre a minutos
+        const [hA, mA] = apertura.split(":").map(Number);
+        const [hC, mC] = cierre.split(":").map(Number);
+
+        const minutosApertura = hA * 60 + mA;
+        const minutosCierre = hC * 60 + mC;
+
         const abierto =
           activo &&
-          horaActual >= apertura &&
-          horaActual < cierre;
+          minutosActual >= minutosApertura &&
+          minutosActual < minutosCierre;
 
         setIsOpen(abierto);
       };
