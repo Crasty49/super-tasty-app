@@ -26,11 +26,7 @@ export default function Checkout({
 
   useBackClose(true, onClose);
 
-
-  const total = cart.reduce(
-    (sum, item) => sum + item.price,
-    0
-  );
+  const total = cart.reduce((sum, item) => sum + item.price, 0);
 
   const cashInvalid =
     payment === "efectivo" &&
@@ -53,7 +49,6 @@ export default function Checkout({
   };
 
   const sendWhatsApp = async () => {
-    
 
     let message = `🔥 Pedido Super Tasty Boneless\n\n`;
 
@@ -89,7 +84,6 @@ export default function Checkout({
       }
 
       message += `Precio: $${item.price}\n\n`;
-
     });
 
     message += `💰 Total: $${total}\n\n`;
@@ -101,37 +95,39 @@ export default function Checkout({
     }\n`;
 
     if (payment === "efectivo") {
-
       const change = Number(cash) - total;
-
       message += `Cliente paga con: $${cash}\n`;
       message += `Feria: $${change}\n`;
     }
 
     message += `\nCliente: ${name}\nTel: ${phone}`;
 
-    // 🔥 GUARDAR PEDIDO EN FIREBASE
-await addDoc(collection(db, "pedidos"), {
-  cliente: name,
-  telefono: phone,
-  productos: cart,
-  total: total,
-  pago: payment,
-  efectivo: payment === "efectivo" ? cash : null,
-  cambio: payment === "efectivo" ? Number(cash) - total : null,
-  estado: "nuevo",
-  fecha: serverTimestamp()
-});
-    
-
     const url =
       `https://wa.me/${BUSINESS_PHONE}?text=${encodeURIComponent(message)}`;
+
+    // 🔥 ABRIR WHATSAPP PRIMERO (ANTES DEL FIREBASE)
+    window.open(url, "_blank");
+
+    // 🔥 GUARDAR PEDIDO EN FIREBASE EN SEGUNDO PLANO
+    try {
+      await addDoc(collection(db, "pedidos"), {
+        cliente: name,
+        telefono: phone,
+        productos: cart,
+        total: total,
+        pago: payment,
+        efectivo: payment === "efectivo" ? cash : null,
+        cambio: payment === "efectivo" ? Number(cash) - total : null,
+        estado: "nuevo",
+        fecha: serverTimestamp()
+      });
+    } catch (err) {
+      console.error("Error guardando pedido:", err);
+    }
 
     onTicket(cart, total);
     onClearCart();
     onSuccess();
-
-    window.open(url, "_blank");
 
     setVerifyOpen(false);
     onClose();
@@ -155,16 +151,12 @@ await addDoc(collection(db, "pedidos"), {
           Confirmar pedido
         </h2>
 
-        {/* Nombre */}
-
         <input
           placeholder="Nombre"
           value={name}
           onChange={e => setName(e.target.value)}
           className="w-full mb-2 p-2 rounded bg-white/10"
         />
-
-        {/* Teléfono */}
 
         <input
           placeholder="Teléfono"
@@ -188,8 +180,6 @@ await addDoc(collection(db, "pedidos"), {
             El número debe tener 10 dígitos
           </p>
         )}
-
-        {/* MÉTODO DE PAGO */}
 
         <div className="mb-3">
 
@@ -221,9 +211,7 @@ await addDoc(collection(db, "pedidos"), {
           </div>
 
           {payment === "efectivo" && (
-
             <>
-
               <input
                 placeholder="Monto con el que paga"
                 type="number"
@@ -242,35 +230,22 @@ await addDoc(collection(db, "pedidos"), {
                   El monto es menor al total
                 </p>
               )}
-
             </>
-
           )}
-
         </div>
 
-        {/* Resumen */}
-
         <div className="mb-4 text-sm">
-
           {cart.map((item, i) => (
-
             <div key={i}>
-
               {item.name}
               {item.quantity > 1 && ` x${item.quantity}`}
-
             </div>
-
           ))}
 
           <div className="mt-2 font-bold text-orange-400">
             Total: ${total}
           </div>
-
         </div>
-
-        {/* Botones */}
 
         <div className="flex gap-3">
 
@@ -298,26 +273,20 @@ await addDoc(collection(db, "pedidos"), {
 
       </motion.div>
 
-      {/* MODAL VERIFICACIÓN */}
-
       <AnimatePresence>
-
         {verifyOpen && (
-
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-[10000]"
           >
-
             <motion.div
               initial={{ scale: 0.8 }}
               animate={{ scale: 1 }}
               exit={{ scale: 0.8 }}
               className="backdrop-blur-xl bg-black/50 border border-white/10 rounded-xl p-6 w-full max-w-sm text-white"
             >
-
 
               <h3 className="text-lg font-bold mb-3 text-orange-400">
                 Confirmar datos
@@ -345,18 +314,12 @@ await addDoc(collection(db, "pedidos"), {
               </div>
 
             </motion.div>
-
           </motion.div>
-
         )}
-
       </AnimatePresence>
-      {/* MODAL TRANSFERENCIA */}
 
       {transferOpen && (
-        <TransferModal
-          onClose={() => setTransferOpen(false)}
-        />
+        <TransferModal onClose={() => setTransferOpen(false)} />
       )}
 
     </motion.div>
