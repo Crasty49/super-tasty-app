@@ -15,7 +15,6 @@ export default function Checkout({
   onSuccess,
   onTicket
 }) {
-
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [verifyOpen, setVerifyOpen] = useState(false);
@@ -28,15 +27,23 @@ export default function Checkout({
 
   const total = cart.reduce((sum, item) => sum + item.price, 0);
 
+  const cashMissing =
+    payment === "efectivo" &&
+    cash.trim() === "";
+
   const cashInvalid =
     payment === "efectivo" &&
-    cash !== "" &&
+    cash.trim() !== "" &&
     Number(cash) < total;
 
   const openVerify = () => {
-
     if (!name || phone.length !== 10) {
       alert("Datos inválidos");
+      return;
+    }
+
+    if (cashMissing) {
+      alert("Debes ingresar el monto con el que vas a pagar");
       return;
     }
 
@@ -49,11 +56,9 @@ export default function Checkout({
   };
 
   const sendWhatsApp = async () => {
-
     let message = `🔥 Pedido Super Tasty Boneless\n\n`;
 
     cart.forEach(item => {
-
       let emoji = "🍗";
       const itemName = item.name.toLowerCase();
 
@@ -105,10 +110,8 @@ export default function Checkout({
     const url =
       `https://wa.me/${BUSINESS_PHONE}?text=${encodeURIComponent(message)}`;
 
-    // 🔥 ABRIR WHATSAPP PRIMERO (ANTES DEL FIREBASE)
     window.open(url, "_blank");
 
-    // 🔥 GUARDAR PEDIDO EN FIREBASE EN SEGUNDO PLANO
     try {
       await addDoc(collection(db, "pedidos"), {
         cliente: name,
@@ -134,19 +137,16 @@ export default function Checkout({
   };
 
   return (
-
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-[9999]"
     >
-
       <motion.div
         initial={{ scale: 0.9 }}
         animate={{ scale: 1 }}
         className="backdrop-blur-xl bg-black/40 border border-white/10 rounded-2xl p-6 w-full max-w-md text-white"
       >
-
         <h2 className="text-xl font-bold mb-4 text-orange-400">
           Confirmar pedido
         </h2>
@@ -182,19 +182,18 @@ export default function Checkout({
         )}
 
         <div className="mb-3">
-
           <p className="text-sm text-gray-300 mb-1">
             Método de pago
           </p>
 
           <div className="flex gap-4 mb-2">
-
             <label>
               <input
                 type="radio"
                 checked={payment === "efectivo"}
                 onChange={() => setPayment("efectivo")}
-              /> Efectivo
+              />{" "}
+              Efectivo
             </label>
 
             <label>
@@ -203,11 +202,12 @@ export default function Checkout({
                 checked={payment === "transferencia"}
                 onChange={() => {
                   setPayment("transferencia");
+                  setCash("");
                   setTransferOpen(true);
                 }}
-              /> Transferencia
+              />{" "}
+              Transferencia
             </label>
-
           </div>
 
           {payment === "efectivo" && (
@@ -219,13 +219,19 @@ export default function Checkout({
                 onChange={e => setCash(e.target.value)}
                 className={`
                   w-full p-2 rounded mb-1
-                  ${cashInvalid
+                  ${cashMissing || cashInvalid
                     ? "bg-red-500/20 border border-red-500"
                     : "bg-white/10"}
                 `}
               />
 
-              {cashInvalid && (
+              {cashMissing && (
+                <p className="text-red-400 text-sm">
+                  Debes ingresar el monto con el que paga
+                </p>
+              )}
+
+              {!cashMissing && cashInvalid && (
                 <p className="text-red-400 text-sm">
                   El monto es menor al total
                 </p>
@@ -248,13 +254,12 @@ export default function Checkout({
         </div>
 
         <div className="flex gap-3">
-
           <button
             onClick={openVerify}
-            disabled={cashInvalid}
+            disabled={cashMissing || cashInvalid}
             className={`
               flex-1 py-2 rounded-lg
-              ${cashInvalid
+              ${cashMissing || cashInvalid
                 ? "bg-gray-600 cursor-not-allowed"
                 : "bg-gradient-to-r from-red-600 to-orange-500"}
             `}
@@ -268,9 +273,7 @@ export default function Checkout({
           >
             Cancelar
           </button>
-
         </div>
-
       </motion.div>
 
       <AnimatePresence>
@@ -287,16 +290,18 @@ export default function Checkout({
               exit={{ scale: 0.8 }}
               className="backdrop-blur-xl bg-black/50 border border-white/10 rounded-xl p-6 w-full max-w-sm text-white"
             >
-
               <h3 className="text-lg font-bold mb-3 text-orange-400">
                 Confirmar datos
               </h3>
 
-              <p>Nombre: <b>{name}</b></p>
-              <p className="mb-4">Tel: <b>{phone}</b></p>
+              <p>
+                Nombre: <b>{name}</b>
+              </p>
+              <p className="mb-4">
+                Tel: <b>{phone}</b>
+              </p>
 
               <div className="flex gap-3">
-
                 <button
                   onClick={sendWhatsApp}
                   className="flex-1 bg-gradient-to-r from-green-600 to-emerald-500 py-2 rounded-lg"
@@ -310,9 +315,7 @@ export default function Checkout({
                 >
                   Editar
                 </button>
-
               </div>
-
             </motion.div>
           </motion.div>
         )}
@@ -321,7 +324,6 @@ export default function Checkout({
       {transferOpen && (
         <TransferModal onClose={() => setTransferOpen(false)} />
       )}
-
     </motion.div>
   );
 }
