@@ -53,7 +53,7 @@ export default function BonelessBuilder({
       const formateadas = disponibles.map((s) => {
         if (s === "BBQ_Hot") return "BBQ Hot";
         if (s === "Mango_Habanero") return "Mango habanero";
-        if (s === "Búfalo_Ranch") return "Búfalo Ranch";
+        if (s === "Buffalo_Ranch") return "Buffalo Ranch";
         return s;
       });
 
