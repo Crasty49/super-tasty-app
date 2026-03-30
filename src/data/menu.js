@@ -2,9 +2,9 @@ export const sauces = [
   "BBQ",
   "BBQ Hot",
   "Búfalo",
+  "Búfalo Ranch",
   "Mango habanero"
 ];
-
 export const menu = [
   {
     id: 1,
