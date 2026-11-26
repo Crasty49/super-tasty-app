@@ -6,7 +6,7 @@ import useBackClose from "../hooks/useBackClose";
 import { db } from "../firebase/config";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 
-const BUSINESS_PHONE = "528361227012";
+const BUSINESS_PHONE = "528361084545";
 
 export default function Checkout({
   cart,
